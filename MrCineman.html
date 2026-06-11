@@ -1,0 +1,1462 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr. Cineman</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0D0D0D;
+    --red: #C0392B;
+    --cream: #F5ECD7;
+    --gold: #D4AF37;
+    --slate: #1A1A2A;
+    --slate-light: #2C2C3A;
+    --gray: #888;
+    --card-bg: #161622;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    min-height: 100vh;
+  }
+
+  /* ══════════════════════════════════════
+     FILM STRIP BANNER — true repeating film strip
+  ══════════════════════════════════════ */
+  .filmstrip-banner {
+    position: relative;
+    width: 100%;
+    background: #1a1000;
+    overflow: hidden;
+    border-bottom: 3px solid var(--red);
+    display: flex;
+    flex-direction: column;
+    height: 110px;
+  }
+
+  /* Top sprocket row */
+  .sprocket-row {
+    display: flex;
+    width: 100%;
+    background: #111;
+    padding: 5px 0;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .sprocket-row.bottom { margin-top: auto; }
+
+  .sprocket-hole {
+    width: 28px;
+    height: 18px;
+    background: #0D0D0D;
+    border-radius: 3px;
+    margin: 0 10px;
+    flex-shrink: 0;
+    border: 1px solid #2a2a2a;
+  }
+
+  /* Film frames strip in middle */
+  .film-middle {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #1c1500;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .frames-track {
+    display: flex;
+    gap: 3px;
+    animation: slideFrames 30s linear infinite;
+    white-space: nowrap;
+    position: absolute;
+    left: 0;
+  }
+
+  @keyframes slideFrames {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .film-frame {
+    width: 56px;
+    height: 52px;
+    background: #0a0a00;
+    border: 1.5px solid #2a2200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border-radius: 1px;
+    opacity: 0.55;
+  }
+
+  /* Centered title overlay */
+  .banner-title-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .banner-title-box {
+    background: rgba(10,8,0,0.72);
+    backdrop-filter: blur(2px);
+    padding: 8px 32px 10px;
+    border-left: 3px solid var(--gold);
+    border-right: 3px solid var(--gold);
+  }
+
+  .banner-title-box h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--cream);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(212,175,55,0.3);
+  }
+
+  .banner-title-box h1 span { color: var(--gold); }
+
+  /* ── NAVBAR ── */
+  nav {
+    background: var(--black);
+    border-bottom: 1px solid #222;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--cream);
+    text-decoration: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+    cursor: pointer;
+  }
+
+  .nav-links a:hover { opacity: 1; color: var(--gold); }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--slate-light);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 5px 14px;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .search-bar input {
+    background: none;
+    border: none;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.85rem;
+    width: 180px;
+    outline: none;
+  }
+
+  .search-bar input::placeholder { color: #555; }
+  .search-bar svg { color: #555; flex-shrink: 0; }
+
+  .btn-admin {
+    background: none;
+    border: 1px solid #444;
+    color: var(--gray);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-admin:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-admin.logged-in { border-color: var(--red); color: var(--red); }
+
+  .btn-new-post {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    display: none;
+  }
+
+  .btn-new-post.visible { display: block; }
+  .btn-new-post:hover { background: #a93224; }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .section-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+
+  /* ── FEATURED POST ── */
+  .featured-post {
+    background: var(--slate);
+    border-radius: 8px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 2.5rem;
+    border: 1px solid #222;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .featured-post:hover { border-color: #444; }
+
+  .featured-img {
+    position: relative;
+    min-height: 340px;
+    background: var(--slate-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .featured-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; top:0; left:0;
+  }
+
+  .featured-img-placeholder { font-size: 5rem; opacity: 0.2; }
+
+  .featured-badge {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: var(--red);
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  .featured-body {
+    padding: 2.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .genre-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .featured-body h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+  }
+
+  .post-excerpt {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    opacity: 0.78;
+    margin-bottom: 1rem;
+  }
+
+  .post-meta {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--gray);
+    margin-bottom: 0.8rem;
+  }
+
+  /* ── RATING METER ── */
+  .rating-meter {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .rating-text-group { display: flex; flex-direction: column; }
+
+  .rating-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+  }
+
+  .rating-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .rating-max { font-size: 0.9rem; color: var(--gray); }
+
+  .rating-desc {
+    font-size: 0.68rem;
+    color: var(--cream);
+    opacity: 0.55;
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* ── INTERACTION BAR (likes/dislikes/comments count) ── */
+  .interaction-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .react-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .react-btn:hover { border-color: #555; color: var(--cream); }
+  .react-btn.active-like { border-color: #4caf50; color: #4caf50; background: rgba(76,175,80,0.1); }
+  .react-btn.active-dislike { border-color: var(--red); color: var(--red); background: rgba(192,57,43,0.1); }
+
+  .comment-count-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .comment-count-btn:hover { color: var(--cream); }
+
+  /* ── POSTS GRID ── */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .post-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid #1e1e2e;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .post-card:hover { transform: translateY(-3px); border-color: #333; }
+
+  .card-img {
+    height: 180px;
+    background: var(--slate-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0.3;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-img img {
+    width:100%; height:100%;
+    object-fit:cover;
+    position:absolute; top:0; left:0;
+    opacity:1;
+  }
+
+  .card-body { padding: 1.2rem; }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+  }
+
+  .card-excerpt {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    opacity: 0.6;
+    margin-bottom: 0.8rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.7rem;
+    border-top: 1px solid #222;
+  }
+
+  .card-date {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+  }
+
+  .mini-rating { display: flex; align-items: center; gap: 5px; }
+
+  .mini-rating-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    color: var(--gold);
+  }
+
+  .card-interactions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 0.6rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+
+  /* ── HOT POST ── */
+  .hot-post {
+    background: linear-gradient(135deg, #1a1200, #1A1A2A);
+    border-radius: 8px;
+    border: 1px solid #3a2a00;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 220px 1fr;
+    margin-bottom: 3rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .hot-post:hover { border-color: #5a4a00; }
+
+  .hot-img {
+    position: relative;
+    background: var(--slate-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0.3;
+    overflow: hidden;
+  }
+
+  .hot-img img {
+    width:100%; height:100%;
+    object-fit:cover;
+    position:absolute; top:0; left:0;
+    opacity:1;
+  }
+
+  .hot-badge {
+    position: absolute;
+    top: 10px; left: 10px;
+    background: var(--gold);
+    color: #0D0D0D;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.2em;
+    padding: 2px 8px;
+    border-radius: 2px;
+  }
+
+  .hot-body {
+    padding: 1.5rem 1.8rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 180px;
+  }
+
+  .hot-body h3 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .hot-stats {
+    display: flex;
+    gap: 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+    margin-top: 0.8rem;
+  }
+
+  .hot-stat { display: flex; align-items: center; gap: 4px; }
+  .hot-stat.gold { color: var(--gold); }
+
+  /* ── DIVIDER ── */
+  hr.divider { border: none; border-top: 1px solid #1e1e2e; margin: 2.5rem 0; }
+
+  /* ── NO RESULTS ── */
+  .no-results {
+    text-align: center; padding: 3rem;
+    color: var(--gray); font-style: italic; display: none;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--gray); }
+  .empty-state-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.35; }
+  .empty-state p { font-style: italic; }
+
+  /* ══════════════════════════════════════
+     MODALS
+  ══════════════════════════════════════ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--slate);
+    border: 1px solid #333;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: none; border: none;
+    color: var(--gray);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 2;
+  }
+
+  .modal-close:hover { color: var(--cream); }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group { margin-bottom: 1.2rem; }
+
+  .form-group label {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { border-color: var(--gold); }
+
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .form-group select option { background: var(--black); }
+
+  .rating-slider-group { display: flex; align-items: center; gap: 12px; }
+
+  .rating-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .rating-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--black);
+  }
+
+  .rating-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .photo-upload-area {
+    border: 2px dashed #333;
+    border-radius: 6px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+
+  .photo-upload-area:hover { border-color: var(--gold); }
+
+  .photo-upload-area input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100% !important; height: 100% !important;
+    padding: 0 !important; border: none !important;
+  }
+
+  .photo-upload-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+  .photo-upload-text { font-size: 0.8rem; color: var(--gray); }
+
+  .photo-preview {
+    width: 100%; max-height: 160px;
+    object-fit: cover; border-radius: 4px;
+    margin-top: 0.8rem; display: none;
+  }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--red); color: white;
+    border: none; border-radius: 4px;
+    padding: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.15em;
+    cursor: pointer; margin-top: 0.5rem;
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover { background: #a93224; }
+
+  /* ── LOGIN MODAL ── */
+  .login-error {
+    color: var(--red);
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* ── POST DETAIL MODAL ── */
+  .post-detail-modal .modal { max-width: 720px; }
+
+  .post-detail-img {
+    width: 100%; max-height: 300px;
+    object-fit: cover; border-radius: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .post-detail-genre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.25em;
+    color: var(--gold); margin-bottom: 0.5rem;
+  }
+
+  .post-detail-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    margin-bottom: 0.4rem; line-height: 1.2;
+  }
+
+  .post-detail-meta {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.15em;
+    color: var(--gray); margin-bottom: 1.2rem;
+  }
+
+  .post-detail-body {
+    font-size: 0.95rem; line-height: 1.85;
+    opacity: 0.85; margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+  }
+
+  /* ── COMMENTS SECTION ── */
+  .comments-section { border-top: 1px solid #2a2a3a; padding-top: 1.2rem; }
+
+  .comments-header {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.25em;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+
+  .comment-list { margin-bottom: 1rem; }
+
+  .comment-item {
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-left: 2px solid #2a2a3a;
+  }
+
+  .comment-author {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.15em;
+    color: var(--gold); margin-bottom: 4px;
+  }
+
+  .comment-text { font-size: 0.85rem; line-height: 1.55; opacity: 0.82; }
+
+  .comment-form { display: flex; gap: 8px; margin-top: 0.8rem; }
+
+  .comment-name-input {
+    width: 130px; flex-shrink: 0;
+    background: var(--black);
+    border: 1px solid #333; border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.83rem;
+    padding: 8px 10px; outline: none;
+  }
+
+  .comment-text-input {
+    flex: 1;
+    background: var(--black);
+    border: 1px solid #333; border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.83rem;
+    padding: 8px 10px; outline: none;
+    resize: none;
+  }
+
+  .comment-name-input:focus,
+  .comment-text-input:focus { border-color: var(--gold); }
+
+  .btn-comment {
+    background: var(--slate-light);
+    border: 1px solid #444;
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+
+  .btn-comment:hover { background: #3a3a4a; }
+
+  .no-comments {
+    font-size: 0.82rem; color: var(--gray);
+    font-style: italic; margin-bottom: 0.5rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid #1a1a1a;
+    padding: 2rem; text-align: center;
+    color: #444;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.2em;
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ FILM STRIP BANNER ══ -->
+<div class="filmstrip-banner">
+  <div class="sprocket-row" id="topSprockets"></div>
+  <div class="film-middle">
+    <div class="frames-track" id="framesTrack"></div>
+  </div>
+  <div class="sprocket-row bottom" id="botSprockets"></div>
+  <div class="banner-title-overlay">
+    <div class="banner-title-box">
+      <h1>MR. <span>CINEMAN</span></h1>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+  <ul class="nav-links">
+    <li><a onclick="showAll()">All Reviews</a></li>
+    <li><a onclick="filterGenre('Drama')">Drama</a></li>
+    <li><a onclick="filterGenre('Action')">Action</a></li>
+    <li><a onclick="filterGenre('Comedy')">Comedy</a></li>
+    <li><a onclick="filterGenre('Sci-Fi')">Sci-Fi</a></li>
+    <li><a onclick="filterGenre('Horror')">Horror</a></li>
+  </ul>
+  <div class="search-bar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" placeholder="Search movies…" id="searchInput" oninput="handleSearch()">
+  </div>
+  <button class="btn-admin" id="adminBtn" onclick="handleAdminBtn()">Admin Login</button>
+  <button class="btn-new-post" id="newPostBtn" onclick="openNewPost()">+ New Post</button>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main id="mainContent">
+  <div id="postsContainer"></div>
+  <div class="no-results" id="noResults">No posts match your search.</div>
+</main>
+
+<footer>&copy; 2025 Mr. Cineman &nbsp;·&nbsp; All Rights Reserved &nbsp;·&nbsp; 🎬</footer>
+
+<!-- ══ LOGIN MODAL ══ -->
+<div class="modal-overlay" id="loginModal">
+  <div class="modal" style="max-width:380px">
+    <button class="modal-close" onclick="closeLogin()">✕</button>
+    <h2>🔐 Admin Login</h2>
+    <div class="form-group">
+      <label>Password</label>
+      <input type="password" id="adminPassword" placeholder="Enter admin password" onkeydown="if(event.key==='Enter')doLogin()">
+    </div>
+    <div class="login-error" id="loginError">Incorrect password. Try again.</div>
+    <button class="btn-submit" onclick="doLogin()">Login</button>
+  </div>
+</div>
+
+<!-- ══ NEW POST MODAL ══ -->
+<div class="modal-overlay" id="newPostModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeNewPost()">✕</button>
+    <h2>🎬 New Movie Review</h2>
+
+    <div class="form-group">
+      <label>Movie Title</label>
+      <input type="text" id="postTitle" placeholder="e.g. Oppenheimer">
+    </div>
+
+    <div class="form-group">
+      <label>Genre</label>
+      <select id="postGenre">
+        <option value="Drama">Drama</option>
+        <option value="Action">Action</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Sci-Fi">Sci-Fi</option>
+        <option value="Horror">Horror</option>
+        <option value="Romance">Romance</option>
+        <option value="Thriller">Thriller</option>
+        <option value="Animation">Animation</option>
+        <option value="Documentary">Documentary</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Your Review</label>
+      <textarea id="postBody" placeholder="Write your review here…" rows="5"></textarea>
+    </div>
+
+    <div class="form-group">
+      <label>Rating (0.0 – 10.0)</label>
+      <div class="rating-slider-group">
+        <input type="range" class="rating-slider" id="postRating" min="0" max="100" value="75" oninput="updateRatingDisplay()">
+        <div class="rating-display" id="ratingDisplay">7.5</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Movie Photo / Poster</label>
+      <div class="photo-upload-area">
+        <input type="file" accept="image/*" id="postImage" onchange="previewImage()">
+        <div class="photo-upload-icon">🎞️</div>
+        <div class="photo-upload-text">Click to upload a poster or still</div>
+        <img class="photo-preview" id="photoPreview" alt="Preview">
+      </div>
+    </div>
+
+    <button class="btn-submit" onclick="submitPost()">Publish Review</button>
+  </div>
+</div>
+
+<!-- ══ POST DETAIL MODAL ══ -->
+<div class="modal-overlay post-detail-modal" id="postDetailModal">
+  <div class="modal" id="postDetailContent"></div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════
+//  CONFIG
+// ═══════════════════════════════════════════
+const ADMIN_PASSWORD = 'GradyW#22'; 
+let isAdmin = false;
+let posts = [];
+let filteredPosts = [];
+let activeFilter = null;
+// Track per-user reactions per session (postId -> 'like'|'dislike'|null)
+const userReactions = {};
+
+// ═══════════════════════════════════════════
+//  FILM STRIP SETUP
+// ═══════════════════════════════════════════
+function buildFilmStrip() {
+  const icons = ['🎬','🎞️','🎭','🍿','🎦','🎥','⭐','🎬','🎞️','🎭','🍿','🎦','🎬','🎭','🎥','🍿'];
+  const track = document.getElementById('framesTrack');
+  // Double it for seamless loop
+  [...icons, ...icons].forEach(ic => {
+    const f = document.createElement('div');
+    f.className = 'film-frame';
+    f.textContent = ic;
+    track.appendChild(f);
+  });
+
+  // Sprocket holes — enough to fill any width
+  ['topSprockets','botSprockets'].forEach(id => {
+    const row = document.getElementById(id);
+    for (let i = 0; i < 60; i++) {
+      const h = document.createElement('div');
+      h.className = 'sprocket-hole';
+      row.appendChild(h);
+    }
+  });
+}
+
+// ═══════════════════════════════════════════
+//  REEL SVG
+// ═══════════════════════════════════════════
+function makeReelSVG(rating, size=52) {
+  const r = (size / 2) - 7;
+  const cx = size / 2, cy = size / 2;
+  const circ = 2 * Math.PI * r;
+  const offset = circ * (1 - rating / 10);
+  const color = rating >= 8 ? '#D4AF37' : rating >= 6 ? '#e8a020' : rating >= 4 ? '#c0392b' : '#888';
+  const hub = size * 0.18;
+  const spokes = [0,60,120,180,240,300].map(deg => {
+    const rad = deg * Math.PI / 180;
+    return `<line x1="${(cx+Math.cos(rad)*hub).toFixed(1)}" y1="${(cy+Math.sin(rad)*hub).toFixed(1)}"
+      x2="${(cx+Math.cos(rad)*r*0.55).toFixed(1)}" y2="${(cy+Math.sin(rad)*r*0.55).toFixed(1)}"
+      stroke="${color}" stroke-width="1.5" opacity="0.5"/>`;
+  }).join('');
+  return `<svg width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="#222" stroke-width="4"/>
+    <circle cx="${cx}" cy="${cy}" r="${r}" fill="none" stroke="${color}" stroke-width="5"
+      stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${offset.toFixed(1)}"
+      stroke-linecap="round" transform="rotate(-90 ${cx} ${cy})" opacity="0.9"/>
+    ${spokes}
+    <circle cx="${cx}" cy="${cy}" r="${hub.toFixed(1)}" fill="#1A1A2A" stroke="${color}" stroke-width="1.5"/>
+    <circle cx="${cx}" cy="${cy}" r="${(hub*0.4).toFixed(1)}" fill="${color}" opacity="0.7"/>
+  </svg>`;
+}
+
+function ratingDescription(r) {
+  if (r>=9.5) return 'Masterpiece';
+  if (r>=9.0) return 'Exceptional';
+  if (r>=8.0) return 'Excellent';
+  if (r>=7.0) return 'Very Good';
+  if (r>=6.0) return 'Good';
+  if (r>=5.0) return 'Average';
+  if (r>=4.0) return 'Below Average';
+  if (r>=2.0) return 'Poor';
+  return 'Terrible';
+}
+
+// ═══════════════════════════════════════════
+//  ADMIN AUTH
+// ═══════════════════════════════════════════
+function handleAdminBtn() {
+  if (isAdmin) {
+    isAdmin = false;
+    document.getElementById('adminBtn').textContent = 'Admin Login';
+    document.getElementById('adminBtn').classList.remove('logged-in');
+    document.getElementById('newPostBtn').classList.remove('visible');
+  } else {
+    document.getElementById('loginModal').classList.add('open');
+    setTimeout(() => document.getElementById('adminPassword').focus(), 100);
+  }
+}
+
+function doLogin() {
+  const pw = document.getElementById('adminPassword').value;
+  if (pw === ADMIN_PASSWORD) {
+    isAdmin = true;
+    document.getElementById('adminBtn').textContent = 'Log Out';
+    document.getElementById('adminBtn').classList.add('logged-in');
+    document.getElementById('newPostBtn').classList.add('visible');
+    closeLogin();
+  } else {
+    document.getElementById('loginError').style.display = 'block';
+  }
+}
+
+function closeLogin() {
+  document.getElementById('loginModal').classList.remove('open');
+  document.getElementById('adminPassword').value = '';
+  document.getElementById('loginError').style.display = 'none';
+}
+
+// ═══════════════════════════════════════════
+//  INTERACTIONS (likes / dislikes)
+// ═══════════════════════════════════════════
+function react(postId, type, event) {
+  event.stopPropagation();
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+
+  const current = userReactions[postId] || null;
+
+  if (current === type) {
+    // Toggle off
+    post[type === 'like' ? 'likes' : 'dislikes']--;
+    userReactions[postId] = null;
+  } else {
+    // If switching, undo old
+    if (current === 'like') post.likes--;
+    if (current === 'dislike') post.dislikes--;
+    // Apply new
+    post[type === 'like' ? 'likes' : 'dislikes']++;
+    userReactions[postId] = type;
+  }
+
+  render(filteredPosts);
+}
+
+function totalInteractions(p) {
+  return (p.likes || 0) + (p.dislikes || 0) + (p.comments ? p.comments.length : 0);
+}
+
+// ═══════════════════════════════════════════
+//  COMMENTS
+// ═══════════════════════════════════════════
+function submitComment(postId) {
+  const nameEl = document.getElementById('commentName_' + postId);
+  const textEl = document.getElementById('commentText_' + postId);
+  const name = nameEl.value.trim() || 'Anonymous';
+  const text = textEl.value.trim();
+  if (!text) return;
+
+  const post = posts.find(p => p.id === postId);
+  if (!post) return;
+  post.comments = post.comments || [];
+  post.comments.push({ name, text, date: new Date().toLocaleDateString('en-US', {month:'short',day:'numeric'}) });
+  nameEl.value = '';
+  textEl.value = '';
+
+  // Re-render comments area in place
+  const listEl = document.getElementById('commentList_' + postId);
+  if (listEl) listEl.innerHTML = renderCommentList(post);
+  const countEl = document.getElementById('commentCount_' + postId);
+  if (countEl) countEl.textContent = post.comments.length;
+
+  render(filteredPosts); // update card counts too
+}
+
+function renderCommentList(post) {
+  const comments = post.comments || [];
+  if (!comments.length) return `<div class="no-comments">No comments yet. Be the first!</div>`;
+  return comments.map(c => `
+    <div class="comment-item">
+      <div class="comment-author">${escHtml(c.name)} · ${c.date}</div>
+      <div class="comment-text">${escHtml(c.text)}</div>
+    </div>`).join('');
+}
+
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ═══════════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════════
+function render(list) {
+  const container = document.getElementById('postsContainer');
+  const noResults = document.getElementById('noResults');
+
+  if (!list || list.length === 0) {
+    container.innerHTML = `<div class="empty-state"><div class="empty-state-icon">🎬</div><p>No reviews yet. ${isAdmin ? 'Click "+ New Post" to write the first one!' : 'Check back soon!'}</p></div>`;
+    noResults.style.display = 'none';
+    return;
+  }
+  noResults.style.display = 'none';
+
+  const sorted = [...list].sort((a, b) => b.dateTs - a.dateTs);
+  const [featured, ...rest] = sorted;
+
+  // Most interacted (from ALL posts, not filtered)
+  const hotPost = [...posts].sort((a, b) => totalInteractions(b) - totalInteractions(a))[0];
+  const showHot = hotPost && posts.length > 1 && hotPost.id !== featured.id;
+
+  let html = '';
+
+  // ── FEATURED ──
+  html += `<div class="section-eyebrow">Most Recent Review</div>`;
+  html += `<div class="featured-post" onclick="openPost(${featured.id})">
+    <div class="featured-img">
+      ${featured.image ? `<img src="${featured.image}" alt="${featured.title}">` : `<div class="featured-img-placeholder">🎬</div>`}
+      <div class="featured-badge">LATEST</div>
+    </div>
+    <div class="featured-body">
+      <div>
+        <div class="genre-tag">${featured.genre}</div>
+        <h2>${featured.title}</h2>
+        <p class="post-excerpt">${featured.body.substring(0, 230)}…</p>
+      </div>
+      <div>
+        <div class="post-meta">${featured.date}</div>
+        <div class="rating-meter" style="margin-bottom:10px">
+          ${makeReelSVG(featured.rating, 58)}
+          <div class="rating-text-group">
+            <div class="rating-label">Mr. Cineman Rating</div>
+            <div class="rating-value">${featured.rating.toFixed(1)}<span class="rating-max">/10</span></div>
+            <div class="rating-desc">${ratingDescription(featured.rating)}</div>
+          </div>
+        </div>
+        <div class="interaction-bar" onclick="event.stopPropagation()">
+          <button class="react-btn ${userReactions[featured.id]==='like'?'active-like':''}" onclick="react(${featured.id},'like',event)">
+            👍 <span>${featured.likes||0}</span>
+          </button>
+          <button class="react-btn ${userReactions[featured.id]==='dislike'?'active-dislike':''}" onclick="react(${featured.id},'dislike',event)">
+            👎 <span>${featured.dislikes||0}</span>
+          </button>
+          <span class="comment-count-btn" onclick="openPost(${featured.id})">
+            💬 ${(featured.comments||[]).length} comment${(featured.comments||[]).length!==1?'s':''}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>`;
+
+  // ── MOST INTERACTED ──
+  if (showHot) {
+    html += `<div class="section-eyebrow">🔥 Most Interacted</div>`;
+    const hp = hotPost;
+    html += `<div class="hot-post" onclick="openPost(${hp.id})">
+      <div class="hot-img">
+        ${hp.image ? `<img src="${hp.image}" alt="${hp.title}">` : '🎬'}
+        <div class="hot-badge">🔥 HOT</div>
+      </div>
+      <div class="hot-body">
+        <div>
+          <div class="genre-tag">${hp.genre}</div>
+          <h3>${hp.title}</h3>
+          <p style="font-size:0.82rem;opacity:0.65;line-height:1.5;margin-top:4px">${hp.body.substring(0,140)}…</p>
+        </div>
+        <div style="display:flex;align-items:center;gap:16px;margin-top:10px">
+          <div class="hot-stats">
+            <div class="hot-stat gold">👍 ${hp.likes||0}</div>
+            <div class="hot-stat">👎 ${hp.dislikes||0}</div>
+            <div class="hot-stat">💬 ${(hp.comments||[]).length}</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            ${makeReelSVG(hp.rating,36)}
+            <span style="font-family:'Bebas Neue',sans-serif;font-size:1.3rem;color:var(--gold)">${hp.rating.toFixed(1)}</span>
+          </div>
+        </div>
+      </div>
+    </div>`;
+  }
+
+  // ── REST ──
+  if (rest.length > 0) {
+    html += `<hr class="divider">`;
+    html += `<div class="section-eyebrow">All Reviews</div>`;
+    html += `<div class="posts-grid">`;
+    rest.forEach(p => {
+      html += `<div class="post-card" onclick="openPost(${p.id})">
+        <div class="card-img">${p.image?`<img src="${p.image}" alt="${p.title}">`:'🎬'}</div>
+        <div class="card-body">
+          <div class="genre-tag">${p.genre}</div>
+          <div class="card-title">${p.title}</div>
+          <div class="card-excerpt">${p.body}</div>
+          <div class="card-footer">
+            <div class="card-date">${p.date}</div>
+            <div class="mini-rating">
+              ${makeReelSVG(p.rating,26)}
+              <div class="mini-rating-val">${p.rating.toFixed(1)}</div>
+            </div>
+          </div>
+          <div class="card-interactions" onclick="event.stopPropagation()">
+            <span onclick="react(${p.id},'like',event)" style="cursor:pointer;${userReactions[p.id]==='like'?'color:#4caf50':''}">👍 ${p.likes||0}</span>
+            <span onclick="react(${p.id},'dislike',event)" style="cursor:pointer;${userReactions[p.id]==='dislike'?'color:var(--red)':''}">👎 ${p.dislikes||0}</span>
+            <span>💬 ${(p.comments||[]).length}</span>
+          </div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  }
+
+  container.innerHTML = html;
+}
+
+// ═══════════════════════════════════════════
+//  SEARCH / FILTER
+// ═══════════════════════════════════════════
+function handleSearch() {
+  const q = document.getElementById('searchInput').value.toLowerCase().trim();
+  const base = activeFilter ? posts.filter(p => p.genre === activeFilter) : posts;
+  filteredPosts = q ? base.filter(p =>
+    p.title.toLowerCase().includes(q) ||
+    p.genre.toLowerCase().includes(q) ||
+    p.body.toLowerCase().includes(q)
+  ) : base;
+  if (filteredPosts.length === 0 && posts.length > 0) {
+    document.getElementById('postsContainer').innerHTML = '';
+    document.getElementById('noResults').style.display = 'block';
+  } else {
+    document.getElementById('noResults').style.display = 'none';
+    render(filteredPosts);
+  }
+}
+
+function filterGenre(genre) {
+  activeFilter = genre;
+  document.getElementById('searchInput').value = '';
+  filteredPosts = posts.filter(p => p.genre === genre);
+  render(filteredPosts);
+}
+
+function showAll() {
+  activeFilter = null;
+  document.getElementById('searchInput').value = '';
+  filteredPosts = [...posts];
+  render(filteredPosts);
+}
+
+// ═══════════════════════════════════════════
+//  NEW POST MODAL
+// ═══════════════════════════════════════════
+function openNewPost() {
+  document.getElementById('newPostModal').classList.add('open');
+}
+
+function closeNewPost() {
+  document.getElementById('newPostModal').classList.remove('open');
+  document.getElementById('postTitle').value = '';
+  document.getElementById('postBody').value = '';
+  document.getElementById('postRating').value = 75;
+  document.getElementById('ratingDisplay').textContent = '7.5';
+  document.getElementById('photoPreview').style.display = 'none';
+  document.getElementById('postImage').value = '';
+}
+
+function updateRatingDisplay() {
+  document.getElementById('ratingDisplay').textContent = (document.getElementById('postRating').value / 10).toFixed(1);
+}
+
+function previewImage() {
+  const file = document.getElementById('postImage').files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const prev = document.getElementById('photoPreview');
+    prev.src = e.target.result;
+    prev.style.display = 'block';
+  };
+  reader.readAsDataURL(file);
+}
+
+function submitPost() {
+  if (!isAdmin) return;
+  const title = document.getElementById('postTitle').value.trim();
+  const genre = document.getElementById('postGenre').value;
+  const body = document.getElementById('postBody').value.trim();
+  const rating = document.getElementById('postRating').value / 10;
+  const imgEl = document.getElementById('photoPreview');
+
+  if (!title || !body) { alert('Please fill in the movie title and your review.'); return; }
+
+  const now = new Date();
+  const newPost = {
+    id: Date.now(),
+    title, genre, body, rating,
+    date: now.toLocaleDateString('en-US', {year:'numeric',month:'long',day:'numeric'}),
+    dateTs: parseInt(now.toISOString().slice(0,10).replace(/-/g,'')),
+    image: imgEl.style.display !== 'none' ? imgEl.src : null,
+    likes: 0, dislikes: 0, comments: []
+  };
+
+  posts.unshift(newPost);
+  filteredPosts = [...posts];
+  render(filteredPosts);
+  closeNewPost();
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ═══════════════════════════════════════════
+//  POST DETAIL MODAL
+// ═══════════════════════════════════════════
+function openPost(id) {
+  const p = posts.find(x => x.id === id);
+  if (!p) return;
+
+  const content = document.getElementById('postDetailContent');
+  content.innerHTML = `
+    <button class="modal-close" onclick="closePost()">✕</button>
+    ${p.image ? `<img class="post-detail-img" src="${p.image}" alt="${p.title}">` : ''}
+    <div class="post-detail-genre">${p.genre}</div>
+    <div class="post-detail-title">${p.title}</div>
+    <div class="post-detail-meta">${p.date}</div>
+    <div class="rating-meter" style="margin-bottom:1rem;max-width:300px">
+      ${makeReelSVG(p.rating, 62)}
+      <div class="rating-text-group">
+        <div class="rating-label">Mr. Cineman Rating</div>
+        <div class="rating-value">${p.rating.toFixed(1)}<span class="rating-max">/10</span></div>
+        <div class="rating-desc">${ratingDescription(p.rating)}</div>
+      </div>
+    </div>
+    <div class="interaction-bar" style="margin-bottom:1.5rem">
+      <button class="react-btn ${userReactions[p.id]==='like'?'active-like':''}" onclick="reactAndRefreshDetail(${p.id},'like',event)">
+        👍 <span id="detailLikes_${p.id}">${p.likes||0}</span>
+      </button>
+      <button class="react-btn ${userReactions[p.id]==='dislike'?'active-dislike':''}" onclick="reactAndRefreshDetail(${p.id},'dislike',event)">
+        👎 <span id="detailDislikes_${p.id}">${p.dislikes||0}</span>
+      </button>
+    </div>
+    <div class="post-detail-body">${p.body}</div>
+    <div class="comments-section">
+      <div class="comments-header">💬 Comments (<span id="commentCount_${p.id}">${(p.comments||[]).length}</span>)</div>
+      <div class="comment-list" id="commentList_${p.id}">${renderCommentList(p)}</div>
+      <div class="comment-form">
+        <input type="text" class="comment-name-input" id="commentName_${p.id}" placeholder="Your name">
+        <textarea class="comment-text-input" id="commentText_${p.id}" placeholder="Share your thoughts…" rows="2"></textarea>
+        <button class="btn-comment" onclick="submitComment(${p.id})">Post</button>
+      </div>
+    </div>
+  `;
+  document.getElementById('postDetailModal').classList.add('open');
+}
+
+function reactAndRefreshDetail(postId, type, event) {
+  event.stopPropagation();
+  react(postId, type, { stopPropagation: () => {} });
+  // Update counts in detail modal
+  const p = posts.find(x => x.id === postId);
+  if (!p) return;
+  const lEl = document.getElementById('detailLikes_' + postId);
+  const dEl = document.getElementById('detailDislikes_' + postId);
+  if (lEl) lEl.textContent = p.likes || 0;
+  if (dEl) dEl.textContent = p.dislikes || 0;
+  // Update button states
+  document.querySelectorAll(`#postDetailContent .react-btn`).forEach((btn, i) => {
+    btn.classList.remove('active-like', 'active-dislike');
+    if (i === 0 && userReactions[postId] === 'like') btn.classList.add('active-like');
+    if (i === 1 && userReactions[postId] === 'dislike') btn.classList.add('active-dislike');
+  });
+}
+
+function closePost() {
+  document.getElementById('postDetailModal').classList.remove('open');
+  render(filteredPosts); // refresh card counts
+}
+
+// ═══════════════════════════════════════════
+//  CLOSE ON OVERLAY CLICK
+// ═══════════════════════════════════════════
+['loginModal','newPostModal','postDetailModal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => {
+    if (e.target.id === id) {
+      if (id === 'loginModal') closeLogin();
+      else if (id === 'newPostModal') closeNewPost();
+      else closePost();
+    }
+  });
+});
+
+// ═══════════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════════
+buildFilmStrip();
+render(posts);
+</script>
+</body>
+</html>
