@@ -1027,16 +1027,120 @@
 
 <script>
 // ═══════════════════════════════════════════
-//  CONFIG
+//  CONFIG & STORAGE
 // ═══════════════════════════════════════════
-const ADMIN_PASSWORD = 'GradyW#22'; 
+const ADMIN_PASSWORD = 'GradyW#22';
+const STORAGE_KEY = 'mrcinemanPosts';
+const DEFAULT_POSTS = [
+  {
+    id: 1,
+    title: 'Oppenheimer',
+    genre: 'Drama',
+    excerpt: 'A masterpiece of cinematography and storytelling. Christopher Nolan delivers his best work.',
+    body: 'Oppenheimer stands as one of the finest films ever made. Nolan\'s direction is impeccable, weaving complex historical events into a deeply personal narrative. The cinematography is breathtaking, and the performances, especially Cillian Murphy\'s, are nothing short of extraordinary.',
+    rating: 9.2,
+    likes: 234,
+    dislikes: 12,
+    comments: 18,
+    image: '🎬',
+    date: 'Dec 15, 2024'
+  },
+  {
+    id: 2,
+    title: 'Killers of the Flower Moon',
+    genre: 'Drama',
+    excerpt: 'A haunting exploration of greed and injustice. Scorsese\'s finest western.',
+    body: 'Killers of the Flower Moon is a powerful and emotional journey through a dark chapter of American history. The cinematography captures the beauty and brutality of the era. DeCaprio and Gladden deliver exceptional performances.',
+    rating: 8.8,
+    likes: 156,
+    dislikes: 8,
+    comments: 12,
+    image: '🌹',
+    date: 'Nov 2, 2024'
+  },
+  {
+    id: 3,
+    title: 'Dune: Part Two',
+    genre: 'Sci-Fi',
+    excerpt: 'Epic scale meets intimate character work. Denis Villeneuve creates a visual spectacle.',
+    body: 'Dune: Part Two expands on the world in ways that exceed even the most optimistic expectations. The action sequences are jaw-dropping, and the visual effects are groundbreaking. Timothée Chalamet has truly grown into the role.',
+    rating: 8.5,
+    likes: 312,
+    dislikes: 22,
+    comments: 35,
+    image: '🏜️',
+    date: 'Oct 18, 2024'
+  },
+  {
+    id: 4,
+    title: 'Barbie',
+    genre: 'Comedy',
+    excerpt: 'A vibrant, fun, and surprisingly deep dive into identity and purpose.',
+    body: 'Barbie is a delightful romp through the Barbie world with surprising depth. Greta Gerwig crafts a colorful, entertaining film that doesn\'t shy away from meaningful themes. The performances are charming, and the humor lands consistently.',
+    rating: 8.0,
+    likes: 287,
+    dislikes: 45,
+    comments: 28,
+    image: '💗',
+    date: 'Sep 5, 2024'
+  },
+  {
+    id: 5,
+    title: 'The Brutalist',
+    genre: 'Drama',
+    excerpt: 'A towering achievement in filmmaking. Brady Corbet announces himself as a major talent.',
+    body: 'The Brutalist is an ambitious, visually stunning film about art, ambition, and the American dream. The scope is enormous, but so is the emotional depth. Adrien Brody delivers a career-defining performance.',
+    rating: 8.9,
+    likes: 89,
+    dislikes: 5,
+    comments: 7,
+    image: '🏛️',
+    date: 'Aug 22, 2024'
+  }
+];
+
 let isAdmin = false;
 let posts = [];
 let filteredPosts = [];
 let activeFilter = null;
 let currentViewingPostId = null;
-// Track per-user reactions per session (postId -> 'like'|'dislike'|null)
 const userReactions = {};
+
+// ═══════════════════════════════════════════
+//  LOCALSTORAGE MANAGEMENT
+// ═══════════════════════════════════════════
+function loadPosts() {
+  try {
+    const stored = localStorage.getItem(STORAGE_KEY);
+    if (stored) {
+      posts = JSON.parse(stored);
+    } else {
+      posts = JSON.parse(JSON.stringify(DEFAULT_POSTS));
+      savePosts();
+    }
+  } catch (e) {
+    console.error('Error loading posts:', e);
+    posts = JSON.parse(JSON.stringify(DEFAULT_POSTS));
+  }
+}
+
+function savePosts() {
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+  } catch (e) {
+    console.error('Error saving posts:', e);
+    alert('Failed to save data. Storage may be full.');
+  }
+}
+
+function getTitleIndex(title) {
+  const normalizedTitle = title.trim().toLowerCase();
+  return posts.findIndex(p => p.title.trim().toLowerCase() === normalizedTitle);
+}
+
+function titleExists(title) {
+  return getTitleIndex(title) !== -1;
+}
 
 // ═══════════════════════════════════════════
 //  FILM STRIP SETUP
@@ -1044,7 +1148,6 @@ const userReactions = {};
 function buildFilmStrip() {
   const icons = ['🎬','🎞️','🎭','🍿','🎦','🎥','⭐','🎬','🎞️','🎭','🍿','🎦','🎬','🎭','🎥','🍿'];
   const track = document.getElementById('framesTrack');
-  // Double it for seamless loop
   [...icons, ...icons].forEach(ic => {
     const f = document.createElement('div');
     f.className = 'film-frame';
@@ -1052,7 +1155,6 @@ function buildFilmStrip() {
     track.appendChild(f);
   });
 
-  // Sprockets
   const topRow = document.getElementById('topSprockets');
   const botRow = document.getElementById('botSprockets');
   for (let i = 0; i < 40; i++) {
@@ -1064,77 +1166,6 @@ function buildFilmStrip() {
 // ═══════════════════════════════════════════
 //  CORE DATA & RENDERING
 // ═══════════════════════════════════════════
-function initDemo() {
-  posts = [
-    {
-      id: 1,
-      title: 'Oppenheimer',
-      genre: 'Drama',
-      excerpt: 'A masterpiece of cinematography and storytelling. Christopher Nolan delivers his best work.',
-      body: 'Oppenheimer stands as one of the finest films ever made. Nolan\'s direction is impeccable, weaving complex historical events into a deeply personal narrative. The cinematography is breathtaking, and the performances, especially Cillian Murphy\'s, are nothing short of extraordinary.',
-      rating: 9.2,
-      likes: 234,
-      dislikes: 12,
-      comments: 18,
-      image: '🎬',
-      date: 'Dec 15, 2024'
-    },
-    {
-      id: 2,
-      title: 'Killers of the Flower Moon',
-      genre: 'Drama',
-      excerpt: 'A haunting exploration of greed and injustice. Scorsese\'s finest western.',
-      body: 'Killers of the Flower Moon is a powerful and emotional journey through a dark chapter of American history. The cinematography captures the beauty and brutality of the era. DeCaprio and Gladden deliver exceptional performances.',
-      rating: 8.8,
-      likes: 156,
-      dislikes: 8,
-      comments: 12,
-      image: '🌹',
-      date: 'Nov 2, 2024'
-    },
-    {
-      id: 3,
-      title: 'Dune: Part Two',
-      genre: 'Sci-Fi',
-      excerpt: 'Epic scale meets intimate character work. Denis Villeneuve creates a visual spectacle.',
-      body: 'Dune: Part Two expands on the world in ways that exceed even the most optimistic expectations. The action sequences are jaw-dropping, and the visual effects are groundbreaking. Timothée Chalamet has truly grown into the role.',
-      rating: 8.5,
-      likes: 312,
-      dislikes: 22,
-      comments: 35,
-      image: '🏜️',
-      date: 'Oct 18, 2024'
-    },
-    {
-      id: 4,
-      title: 'Barbie',
-      genre: 'Comedy',
-      excerpt: 'A vibrant, fun, and surprisingly deep dive into identity and purpose.',
-      body: 'Barbie is a delightful romp through the Barbie world with surprising depth. Greta Gerwig crafts a colorful, entertaining film that doesn\'t shy away from meaningful themes. The performances are charming, and the humor lands consistently.',
-      rating: 8.0,
-      likes: 287,
-      dislikes: 45,
-      comments: 28,
-      image: '💗',
-      date: 'Sep 5, 2024'
-    },
-    {
-      id: 5,
-      title: 'The Brutalist',
-      genre: 'Drama',
-      excerpt: 'A towering achievement in filmmaking. Brady Corbet announces himself as a major talent.',
-      body: 'The Brutalist is an ambitious, visually stunning film about art, ambition, and the American dream. The scope is enormous, but so is the emotional depth. Adrien Brody delivers a career-defining performance.',
-      rating: 8.9,
-      likes: 89,
-      dislikes: 5,
-      comments: 7,
-      image: '🏛️',
-      date: 'Aug 22, 2024'
-    }
-  ];
-  renderPosts();
-}
-
 function renderPosts() {
   const container = document.getElementById('postsContainer');
   container.innerHTML = '';
@@ -1146,7 +1177,6 @@ function renderPosts() {
   }
   document.getElementById('noResults').style.display = 'none';
 
-  // Show first post as featured, rest as grid
   if (toRender.length > 0) {
     const featured = toRender[0];
     container.innerHTML += renderFeaturedPost(featured);
@@ -1265,6 +1295,7 @@ function deletePost(postId) {
   if (confirm('Are you sure you want to delete this post? This cannot be undone.')) {
     posts = posts.filter(p => p.id !== postId);
     filteredPosts = filteredPosts.filter(p => p.id !== postId);
+    savePosts();
     document.getElementById('postDetailModal').classList.remove('open');
     renderPosts();
     alert('Post deleted successfully.');
@@ -1286,6 +1317,7 @@ function submitComment(postId) {
   if (nameInput.value.trim() && textInput.value.trim()) {
     const post = posts.find(p => p.id === postId);
     if (post) post.comments++;
+    savePosts();
     nameInput.value = '';
     textInput.value = '';
     openPostDetail(postId);
@@ -1375,9 +1407,9 @@ function submitPost() {
     return;
   }
 
-  const duplicate = posts.some(post => post.title.toLowerCase() === title.toLowerCase());
-  if (duplicate) {
-    alert('A review for this movie already exists.');
+  // Check for duplicate titles (case-insensitive)
+  if (titleExists(title)) {
+    alert('A review for "' + title + '" already exists. Please use a different title.');
     return;
   }
 
@@ -1396,6 +1428,7 @@ function submitPost() {
   };
 
   posts.unshift(newPost);
+  savePosts();
   closeNewPost();
   renderPosts();
   alert('Review published!');
@@ -1428,10 +1461,11 @@ function closePostDetail() {
   currentViewingPostId = null;
 }
 
-// Close modal on outside click
+// Initialize on page load
 document.addEventListener('DOMContentLoaded', () => {
+  loadPosts();
   buildFilmStrip();
-  initDemo();
+  renderPosts();
 
   document.getElementById('loginModal').addEventListener('click', e => {
     if (e.target === document.getElementById('loginModal')) closeLogin();
