@@ -966,6 +966,16 @@
     </div>
 
     <button class="btn-submit" onclick="submitPost()">Publish Review</button>
+    
+    // Check for duplicate titles (case-insensitive)
+    const duplicate = posts.some(post =>
+        post.title.toLowerCase() === title.toLowerCase()
+    );
+
+    if (duplicate) {
+        alert("A review for this movie already exists.");
+        return;
+    }
   </div>
 </div>
 
