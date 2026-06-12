@@ -898,6 +898,12 @@
     font-style: italic; margin-bottom: 0.5rem;
   }
 
+  .loading-spinner {
+    text-align: center;
+    padding: 2rem;
+    color: var(--gray);
+  }
+
   /* ── FOOTER ── */
   footer {
     border-top: 1px solid #1a1a1a;
@@ -1027,77 +1033,11 @@
 
 <script>
 // ═══════════════════════════════════════════
-//  CONFIG & STORAGE
+//  CONFIG & STORAGE (Cloud-based via Gists)
 // ═══════════════════════════════════════════
 const ADMIN_PASSWORD = 'GradyW#22';
-const STORAGE_KEY = 'mrcinemanPosts';
-const DEFAULT_POSTS = [
-  {
-    id: 1,
-    title: 'Oppenheimer',
-    genre: 'Drama',
-    excerpt: 'A masterpiece of cinematography and storytelling. Christopher Nolan delivers his best work.',
-    body: 'Oppenheimer stands as one of the finest films ever made. Nolan\'s direction is impeccable, weaving complex historical events into a deeply personal narrative. The cinematography is breathtaking, and the performances, especially Cillian Murphy\'s, are nothing short of extraordinary.',
-    rating: 9.2,
-    likes: 234,
-    dislikes: 12,
-    comments: 18,
-    image: '🎬',
-    date: 'Dec 15, 2024'
-  },
-  {
-    id: 2,
-    title: 'Killers of the Flower Moon',
-    genre: 'Drama',
-    excerpt: 'A haunting exploration of greed and injustice. Scorsese\'s finest western.',
-    body: 'Killers of the Flower Moon is a powerful and emotional journey through a dark chapter of American history. The cinematography captures the beauty and brutality of the era. DeCaprio and Gladden deliver exceptional performances.',
-    rating: 8.8,
-    likes: 156,
-    dislikes: 8,
-    comments: 12,
-    image: '🌹',
-    date: 'Nov 2, 2024'
-  },
-  {
-    id: 3,
-    title: 'Dune: Part Two',
-    genre: 'Sci-Fi',
-    excerpt: 'Epic scale meets intimate character work. Denis Villeneuve creates a visual spectacle.',
-    body: 'Dune: Part Two expands on the world in ways that exceed even the most optimistic expectations. The action sequences are jaw-dropping, and the visual effects are groundbreaking. Timothée Chalamet has truly grown into the role.',
-    rating: 8.5,
-    likes: 312,
-    dislikes: 22,
-    comments: 35,
-    image: '🏜️',
-    date: 'Oct 18, 2024'
-  },
-  {
-    id: 4,
-    title: 'Barbie',
-    genre: 'Comedy',
-    excerpt: 'A vibrant, fun, and surprisingly deep dive into identity and purpose.',
-    body: 'Barbie is a delightful romp through the Barbie world with surprising depth. Greta Gerwig crafts a colorful, entertaining film that doesn\'t shy away from meaningful themes. The performances are charming, and the humor lands consistently.',
-    rating: 8.0,
-    likes: 287,
-    dislikes: 45,
-    comments: 28,
-    image: '💗',
-    date: 'Sep 5, 2024'
-  },
-  {
-    id: 5,
-    title: 'The Brutalist',
-    genre: 'Drama',
-    excerpt: 'A towering achievement in filmmaking. Brady Corbet announces himself as a major talent.',
-    body: 'The Brutalist is an ambitious, visually stunning film about art, ambition, and the American dream. The scope is enormous, but so is the emotional depth. Adrien Brody delivers a career-defining performance.',
-    rating: 8.9,
-    likes: 89,
-    dislikes: 5,
-    comments: 7,
-    image: '🏛️',
-    date: 'Aug 22, 2024'
-  }
-];
+const GIST_ID = 'mrcinemanreviews'; // This will store your reviews universally
+const GITHUB_TOKEN = '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';
 
 let isAdmin = false;
 let posts = [];
@@ -1107,29 +1047,77 @@ let currentViewingPostId = null;
 const userReactions = {};
 
 // ═══════════════════════════════════════════
-//  LOCALSTORAGE MANAGEMENT
+//  CLOUD STORAGE FUNCTIONS
 // ═══════════════════════════════════════════
-function loadPosts() {
+async function loadPosts() {
   try {
-    const stored = localStorage.getItem(STORAGE_KEY);
+    // Try to load from localStorage first (backup)
+    const stored = localStorage.getItem('mrcinemanPosts');
     if (stored) {
       posts = JSON.parse(stored);
     } else {
-      posts = JSON.parse(JSON.stringify(DEFAULT_POSTS));
-      savePosts();
+      posts = [];
     }
+    
+    // Then sync from GitHub Gist (authoritative source)
+    await syncFromGist();
   } catch (e) {
     console.error('Error loading posts:', e);
-    posts = JSON.parse(JSON.stringify(DEFAULT_POSTS));
+    posts = [];
   }
 }
 
-function savePosts() {
+async function syncFromGist() {
   try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(posts));
+    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    });
+    
+    if (response.ok) {
+      const gist = await response.json();
+      const file = gist.files['mrcinemanreviews.json'];
+      if (file && file.content) {
+        posts = JSON.parse(file.content);
+        localStorage.setItem('mrcinemanPosts', JSON.stringify(posts));
+      }
+    }
+  } catch (e) {
+    console.error('Error syncing from Gist:', e);
+  }
+}
+
+async function savePosts() {
+  try {
+    localStorage.setItem('mrcinemanPosts', JSON.stringify(posts));
+    
+    // Also save to GitHub Gist for cloud sync
+    const gistData = {
+      files: {
+        'mrcinemanreviews.json': {
+          content: JSON.stringify(posts, null, 2)
+        }
+      }
+    };
+    
+    const response = await fetch(`https://api.github.com/gists/${GIST_ID}`, {
+      method: 'PATCH',
+      headers: {
+        'Authorization': `token ${GITHUB_TOKEN}`,
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify(gistData)
+    });
+    
+    if (!response.ok) {
+      console.warn('Failed to sync to Gist, but local save succeeded');
+    }
   } catch (e) {
     console.error('Error saving posts:', e);
-    alert('Failed to save data. Storage may be full.');
+    alert('Warning: Could not save to cloud. Data saved locally.');
   }
 }
 
@@ -1407,7 +1395,6 @@ function submitPost() {
     return;
   }
 
-  // Check for duplicate titles (case-insensitive)
   if (titleExists(title)) {
     alert('A review for "' + title + '" already exists. Please use a different title.');
     return;
@@ -1462,9 +1449,11 @@ function closePostDetail() {
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', () => {
-  loadPosts();
+document.addEventListener('DOMContentLoaded', async () => {
   buildFilmStrip();
+  document.getElementById('postsContainer').innerHTML = '<div class="loading-spinner">Loading reviews...</div>';
+  
+  await loadPosts();
   renderPosts();
 
   document.getElementById('loginModal').addEventListener('click', e => {
