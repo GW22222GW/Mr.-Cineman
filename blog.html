@@ -1,0 +1,1423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mr. Cineman - Movie Reviews Blog</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;0,900;1,400;1,700&family=Source+Serif+4:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Bebas+Neue&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --black: #0D0D0D;
+    --red: #C0392B;
+    --cream: #F5ECD7;
+    --gold: #D4AF37;
+    --slate: #1A1A2A;
+    --slate-light: #2C2C3A;
+    --gray: #888;
+    --card-bg: #161622;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--black);
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    min-height: 100vh;
+  }
+
+  /* ══════════════════════════════════════
+     FILM STRIP BANNER
+  ══════════════════════════════════════ */
+  .filmstrip-banner {
+    position: relative;
+    width: 100%;
+    background: #1a1000;
+    overflow: hidden;
+    border-bottom: 3px solid var(--red);
+    display: flex;
+    flex-direction: column;
+    height: 110px;
+  }
+
+  .sprocket-row {
+    display: flex;
+    width: 100%;
+    background: #111;
+    padding: 5px 0;
+    gap: 0;
+    flex-shrink: 0;
+  }
+
+  .sprocket-row.bottom { margin-top: auto; }
+
+  .sprocket-hole {
+    width: 28px;
+    height: 18px;
+    background: #0D0D0D;
+    border-radius: 3px;
+    margin: 0 10px;
+    flex-shrink: 0;
+    border: 1px solid #2a2a2a;
+  }
+
+  .film-middle {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    background: #1c1500;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .frames-track {
+    display: flex;
+    gap: 3px;
+    animation: slideFrames 30s linear infinite;
+    white-space: nowrap;
+    position: absolute;
+    left: 0;
+  }
+
+  @keyframes slideFrames {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  .film-frame {
+    width: 56px;
+    height: 52px;
+    background: #0a0a00;
+    border: 1.5px solid #2a2200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    flex-shrink: 0;
+    border-radius: 1px;
+    opacity: 0.55;
+  }
+
+  .banner-title-overlay {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    pointer-events: none;
+  }
+
+  .banner-title-box {
+    background: rgba(10,8,0,0.72);
+    backdrop-filter: blur(2px);
+    padding: 8px 32px 10px;
+    border-left: 3px solid var(--gold);
+    border-right: 3px solid var(--gold);
+  }
+
+  .banner-title-box h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2.8rem;
+    font-weight: 900;
+    color: var(--cream);
+    letter-spacing: 0.06em;
+    line-height: 1;
+    text-shadow: 0 0 30px rgba(212,175,55,0.3);
+  }
+
+  .banner-title-box h1 span { color: var(--gold); }
+
+  /* ── NAVBAR ── */
+  nav {
+    background: var(--black);
+    border-bottom: 1px solid #222;
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+    height: 52px;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+
+  .nav-links {
+    display: flex;
+    gap: 1.2rem;
+    list-style: none;
+  }
+
+  .nav-links a {
+    color: var(--cream);
+    text-decoration: none;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1rem;
+    letter-spacing: 0.12em;
+    opacity: 0.7;
+    transition: opacity 0.2s, color 0.2s;
+    cursor: pointer;
+  }
+
+  .nav-links a:hover { opacity: 1; color: var(--gold); }
+
+  .search-bar {
+    display: flex;
+    align-items: center;
+    background: var(--slate-light);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 5px 14px;
+    gap: 8px;
+    margin-left: auto;
+  }
+
+  .search-bar input {
+    background: none;
+    border: none;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.85rem;
+    width: 180px;
+    outline: none;
+  }
+
+  .search-bar input::placeholder { color: #555; }
+  .search-bar svg { color: #555; flex-shrink: 0; }
+
+  .btn-admin {
+    background: none;
+    border: 1px solid #444;
+    color: var(--gray);
+    border-radius: 4px;
+    padding: 6px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .btn-admin:hover { border-color: var(--gold); color: var(--gold); }
+  .btn-admin.logged-in { border-color: var(--red); color: var(--red); }
+
+  .btn-new-post {
+    background: var(--red);
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 7px 16px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    display: none;
+  }
+
+  .btn-new-post.visible { display: block; }
+  .btn-new-post:hover { background: #a93224; }
+
+  /* ── MAIN ── */
+  main {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem;
+  }
+
+  .section-eyebrow {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.32em;
+    color: var(--red);
+    margin-bottom: 1rem;
+  }
+
+  /* ── FEATURED POST ── */
+  .featured-post {
+    background: var(--slate);
+    border-radius: 8px;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    margin-bottom: 2.5rem;
+    border: 1px solid #222;
+    cursor: pointer;
+    transition: border-color 0.2s;
+  }
+
+  .featured-post:hover { border-color: #444; }
+
+  .featured-img {
+    position: relative;
+    min-height: 340px;
+    background: var(--slate-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .featured-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    position: absolute; top:0; left:0;
+  }
+
+  .featured-img-placeholder { font-size: 5rem; opacity: 0.2; }
+
+  .featured-badge {
+    position: absolute;
+    top: 14px; left: 14px;
+    background: var(--red);
+    color: white;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    padding: 3px 10px;
+    border-radius: 2px;
+  }
+
+  .featured-body {
+    padding: 2.2rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+
+  .genre-tag {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem;
+    letter-spacing: 0.25em;
+    color: var(--gold);
+    margin-bottom: 0.5rem;
+  }
+
+  .featured-body h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem;
+    font-weight: 700;
+    line-height: 1.2;
+    margin-bottom: 0.8rem;
+  }
+
+  .post-excerpt {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    opacity: 0.78;
+    margin-bottom: 1rem;
+  }
+
+  .post-meta {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--gray);
+    margin-bottom: 0.8rem;
+  }
+
+  /* ── RATING METER ── */
+  .rating-meter {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 10px 14px;
+    background: rgba(0,0,0,0.35);
+    border-radius: 6px;
+    border: 1px solid #2a2a2a;
+  }
+
+  .rating-text-group { display: flex; flex-direction: column; }
+
+  .rating-label {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: var(--gray);
+  }
+
+  .rating-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.2rem;
+    color: var(--gold);
+    line-height: 1;
+  }
+
+  .rating-max { font-size: 0.9rem; color: var(--gray); }
+
+  .rating-desc {
+    font-size: 0.68rem;
+    color: var(--cream);
+    opacity: 0.55;
+    font-style: italic;
+    margin-top: 2px;
+  }
+
+  /* ── INTERACTION BAR ── */
+  .interaction-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .react-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid #333;
+    border-radius: 20px;
+    padding: 5px 12px;
+    cursor: pointer;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    transition: all 0.15s;
+    user-select: none;
+  }
+
+  .react-btn:hover { border-color: #555; color: var(--cream); }
+  .react-btn.active-like { border-color: #4caf50; color: #4caf50; background: rgba(76,175,80,0.1); }
+  .react-btn.active-dislike { border-color: var(--red); color: var(--red); background: rgba(192,57,43,0.1); }
+
+  .comment-count-btn {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    cursor: pointer;
+    transition: color 0.15s;
+  }
+
+  .comment-count-btn:hover { color: var(--cream); }
+
+  /* ── POSTS GRID ── */
+  .posts-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+  }
+
+  .post-card {
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid #1e1e2e;
+    overflow: hidden;
+    transition: transform 0.2s, border-color 0.2s;
+    cursor: pointer;
+  }
+
+  .post-card:hover { transform: translateY(-3px); border-color: #333; }
+
+  .card-img {
+    height: 180px;
+    background: var(--slate-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 3rem;
+    opacity: 0.3;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card-img img {
+    width:100%; height:100%;
+    object-fit:cover;
+    position:absolute; top:0; left:0;
+    opacity:1;
+  }
+
+  .card-body { padding: 1.2rem; }
+
+  .card-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.4rem;
+    line-height: 1.3;
+  }
+
+  .card-excerpt {
+    font-size: 0.8rem;
+    line-height: 1.6;
+    opacity: 0.6;
+    margin-bottom: 0.8rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  .card-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding-top: 0.7rem;
+    border-top: 1px solid #222;
+  }
+
+  .card-date {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.68rem;
+    letter-spacing: 0.12em;
+    color: var(--gray);
+  }
+
+  .mini-rating { display: flex; align-items: center; gap: 5px; }
+
+  .mini-rating-val {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.05rem;
+    color: var(--gold);
+  }
+
+  .card-interactions {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding-top: 0.6rem;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+
+  /* ── DIVIDER ── */
+  hr.divider { border: none; border-top: 1px solid #1e1e2e; margin: 2.5rem 0; }
+
+  /* ── NO RESULTS ── */
+  .no-results {
+    text-align: center; padding: 3rem;
+    color: var(--gray); font-style: italic; display: none;
+  }
+
+  /* ── EMPTY STATE ── */
+  .empty-state { text-align: center; padding: 4rem 2rem; color: var(--gray); }
+  .empty-state-icon { font-size: 4rem; margin-bottom: 1rem; opacity: 0.35; }
+  .empty-state p { font-style: italic; }
+
+  /* ══════════════════════════════════════
+     MODALS
+  ══════════════════════════════════════ */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.88);
+    z-index: 1000;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+
+  .modal-overlay.open { display: flex; }
+
+  .modal {
+    background: var(--slate);
+    border: 1px solid #333;
+    border-radius: 10px;
+    width: 100%;
+    max-width: 640px;
+    max-height: 90vh;
+    overflow-y: auto;
+    padding: 2rem;
+    position: relative;
+  }
+
+  .modal-close {
+    position: absolute;
+    top: 1rem; right: 1rem;
+    background: none; border: none;
+    color: var(--gray);
+    font-size: 1.4rem;
+    cursor: pointer;
+    line-height: 1;
+    z-index: 2;
+  }
+
+  .modal-close:hover { color: var(--cream); }
+
+  .modal h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .form-group { margin-bottom: 1.2rem; }
+
+  .form-group label {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem;
+    letter-spacing: 0.2em;
+    color: var(--gold);
+    margin-bottom: 0.4rem;
+  }
+
+  .form-group input,
+  .form-group textarea,
+  .form-group select {
+    width: 100%;
+    background: var(--black);
+    border: 1px solid #333;
+    border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.9rem;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .form-group input:focus,
+  .form-group textarea:focus,
+  .form-group select:focus { border-color: var(--gold); }
+
+  .form-group textarea { resize: vertical; min-height: 120px; }
+  .form-group select option { background: var(--black); }
+
+  .rating-slider-group { display: flex; align-items: center; gap: 12px; }
+
+  .rating-slider {
+    flex: 1;
+    -webkit-appearance: none;
+    height: 4px;
+    background: #333;
+    border-radius: 2px;
+    outline: none;
+    padding: 0 !important;
+    border: none !important;
+  }
+
+  .rating-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--black);
+  }
+
+  .rating-slider::-moz-range-thumb {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    cursor: pointer;
+    border: 2px solid var(--black);
+  }
+
+  .rating-display {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    color: var(--gold);
+    min-width: 52px;
+    text-align: right;
+  }
+
+  .photo-upload-area {
+    border: 2px dashed #333;
+    border-radius: 6px;
+    padding: 1.5rem;
+    text-align: center;
+    cursor: pointer;
+    transition: border-color 0.2s;
+    position: relative;
+  }
+
+  .photo-upload-area:hover { border-color: var(--gold); }
+
+  .photo-upload-area input[type="file"] {
+    position: absolute; inset: 0;
+    opacity: 0; cursor: pointer;
+    width: 100% !important; height: 100% !important;
+    padding: 0 !important; border: none !important;
+  }
+
+  .photo-upload-icon { font-size: 2rem; margin-bottom: 0.4rem; }
+  .photo-upload-text { font-size: 0.8rem; color: var(--gray); }
+
+  .photo-preview {
+    width: 100%; max-height: 160px;
+    object-fit: cover; border-radius: 4px;
+    margin-top: 0.8rem; display: none;
+  }
+
+  .btn-submit {
+    width: 100%;
+    background: var(--red); color: white;
+    border: none; border-radius: 4px;
+    padding: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.15em;
+    cursor: pointer; margin-top: 0.5rem;
+    transition: background 0.2s;
+  }
+
+  .btn-submit:hover { background: #a93224; }
+
+  .btn-delete {
+    width: 100%;
+    background: #8b0000; color: white;
+    border: none; border-radius: 4px;
+    padding: 12px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.15em;
+    cursor: pointer; margin-top: 0.5rem;
+    transition: background 0.2s;
+  }
+
+  .btn-delete:hover { background: #b30000; }
+
+  /* ── LOGIN MODAL ── */
+  .login-error {
+    color: var(--red);
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+    display: none;
+  }
+
+  /* ── POST DETAIL MODAL ── */
+  .post-detail-modal .modal { max-width: 720px; }
+
+  .post-detail-img {
+    width: 100%; max-height: 300px;
+    object-fit: cover; border-radius: 6px;
+    margin-bottom: 1.5rem;
+  }
+
+  .post-detail-genre {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.25em;
+    color: var(--gold); margin-bottom: 0.5rem;
+  }
+
+  .post-detail-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 2rem; font-weight: 700;
+    margin-bottom: 0.4rem; line-height: 1.2;
+  }
+
+  .post-detail-meta {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.15em;
+    color: var(--gray); margin-bottom: 1.2rem;
+  }
+
+  .post-detail-body {
+    font-size: 0.95rem; line-height: 1.85;
+    opacity: 0.85; margin-bottom: 1.5rem;
+    white-space: pre-wrap;
+  }
+
+  .post-detail-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 1.5rem;
+  }
+
+  .btn-detail-action {
+    flex: 1;
+    background: var(--gold);
+    color: var(--black);
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-detail-action:hover { background: #e5c158; }
+
+  .btn-detail-delete {
+    flex: 1;
+    background: #8b0000;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 10px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+  }
+
+  .btn-detail-delete:hover { background: #b30000; }
+
+  /* ── COMMENTS SECTION ── */
+  .comments-section { border-top: 1px solid #2a2a3a; padding-top: 1.2rem; }
+
+  .comments-header {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.25em;
+    color: var(--gold); margin-bottom: 1rem;
+  }
+
+  .comment-list { margin-bottom: 1rem; }
+
+  .comment-item {
+    background: rgba(0,0,0,0.25);
+    border-radius: 6px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    border-left: 2px solid #2a2a3a;
+  }
+
+  .comment-author {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.15em;
+    color: var(--gold); margin-bottom: 4px;
+  }
+
+  .comment-text { font-size: 0.85rem; line-height: 1.55; opacity: 0.82; }
+
+  .comment-form { display: flex; gap: 8px; margin-top: 0.8rem; }
+
+  .comment-name-input {
+    width: 130px; flex-shrink: 0;
+    background: var(--black);
+    border: 1px solid #333; border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.83rem;
+    padding: 8px 10px; outline: none;
+  }
+
+  .comment-text-input {
+    flex: 1;
+    background: var(--black);
+    border: 1px solid #333; border-radius: 4px;
+    color: var(--cream);
+    font-family: 'Source Serif 4', serif;
+    font-size: 0.83rem;
+    padding: 8px 10px; outline: none;
+    resize: none;
+    max-height: 60px;
+  }
+
+  .comment-name-input:focus,
+  .comment-text-input:focus { border-color: var(--gold); }
+
+  .btn-comment {
+    background: var(--slate-light);
+    border: 1px solid #444;
+    color: var(--cream);
+    border-radius: 4px;
+    padding: 8px 14px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.85rem; letter-spacing: 0.1em;
+    cursor: pointer;
+    transition: background 0.2s;
+    flex-shrink: 0;
+    align-self: flex-end;
+  }
+
+  .btn-comment:hover { background: #3a3a4a; }
+
+  .no-comments {
+    font-size: 0.82rem; color: var(--gray);
+    font-style: italic; margin-bottom: 0.5rem;
+  }
+
+  /* ── FOOTER ── */
+  footer {
+    border-top: 1px solid #1a1a1a;
+    padding: 2rem; text-align: center;
+    color: #444;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.78rem; letter-spacing: 0.2em;
+  }
+
+  @media (max-width: 768px) {
+    .featured-post { grid-template-columns: 1fr; }
+    .banner-title-box h1 { font-size: 2rem; }
+    nav { flex-direction: column; height: auto; gap: 0.5rem; padding: 0.5rem; }
+    .search-bar { width: 100%; margin-left: 0; }
+    .search-bar input { width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ══ FILM STRIP BANNER ══ -->
+<div class="filmstrip-banner">
+  <div class="sprocket-row" id="topSprockets"></div>
+  <div class="film-middle">
+    <div class="frames-track" id="framesTrack"></div>
+  </div>
+  <div class="sprocket-row bottom" id="botSprockets"></div>
+  <div class="banner-title-overlay">
+    <div class="banner-title-box">
+      <h1>MR. <span>CINEMAN</span></h1>
+    </div>
+  </div>
+</div>
+
+<!-- ══ NAVBAR ══ -->
+<nav>
+  <ul class="nav-links">
+    <li><a onclick="showAll()">All Reviews</a></li>
+    <li><a onclick="filterGenre('Drama')">Drama</a></li>
+    <li><a onclick="filterGenre('Action')">Action</a></li>
+    <li><a onclick="filterGenre('Comedy')">Comedy</a></li>
+    <li><a onclick="filterGenre('Sci-Fi')">Sci-Fi</a></li>
+    <li><a onclick="filterGenre('Horror')">Horror</a></li>
+  </ul>
+  <div class="search-bar">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+    </svg>
+    <input type="text" placeholder="Search movies…" id="searchInput" oninput="handleSearch()">
+  </div>
+  <button class="btn-admin" id="adminBtn" onclick="handleAdminBtn()">+ Post</button>
+</nav>
+
+<!-- ══ MAIN ══ -->
+<main id="mainContent">
+  <div id="postsContainer"></div>
+  <div class="no-results" id="noResults">No posts match your search.</div>
+  <div class="empty-state" id="emptyState">
+    <div class="empty-state-icon">🎬</div>
+    <p>No movie reviews yet. Be the first to share your thoughts!</p>
+  </div>
+</main>
+
+<footer>&copy; 2025 Mr. Cineman &nbsp;·&nbsp; All Rights Reserved &nbsp;·&nbsp; 🎬</footer>
+
+<!-- ══ NEW POST MODAL ══ -->
+<div class="modal-overlay" id="newPostModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeNewPost()">✕</button>
+    <h2>🎬 New Movie Review</h2>
+
+    <div class="form-group">
+      <label>Your Name</label>
+      <input type="text" id="postAuthor" placeholder="Enter your name">
+    </div>
+
+    <div class="form-group">
+      <label>Movie Title</label>
+      <input type="text" id="postTitle" placeholder="e.g. Oppenheimer">
+    </div>
+
+    <div class="form-group">
+      <label>Genre</label>
+      <select id="postGenre">
+        <option value="Drama">Drama</option>
+        <option value="Action">Action</option>
+        <option value="Comedy">Comedy</option>
+        <option value="Sci-Fi">Sci-Fi</option>
+        <option value="Horror">Horror</option>
+        <option value="Romance">Romance</option>
+        <option value="Thriller">Thriller</option>
+        <option value="Animation">Animation</option>
+        <option value="Documentary">Documentary</option>
+        <option value="Other">Other</option>
+      </select>
+    </div>
+
+    <div class="form-group">
+      <label>Your Review</label>
+      <textarea id="postBody" placeholder="Share your thoughts about the movie..."></textarea>
+    </div>
+
+    <div class="form-group">
+      <div class="rating-slider-group">
+        <div>
+          <label>Rating</label>
+          <div style="margin-top:0.4rem;">
+            <input type="range" id="ratingSlider" class="rating-slider" min="0" max="10" value="7" oninput="updateRatingDisplay()">
+          </div>
+        </div>
+        <div class="rating-display" id="ratingDisplay">7</div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <label>Movie Poster (optional)</label>
+      <div class="photo-upload-area" onclick="document.getElementById('photoInput').click()">
+        <div class="photo-upload-icon">🎥</div>
+        <div class="photo-upload-text">Click to upload or drag & drop</div>
+        <input type="file" id="photoInput" accept="image/*" onchange="previewPhoto(event)">
+      </div>
+      <img id="photoPreview" class="photo-preview">
+    </div>
+
+    <button class="btn-submit" onclick="submitPost()">Publish Review</button>
+  </div>
+</div>
+
+<!-- ══ POST DETAIL MODAL ══ -->
+<div class="modal-overlay post-detail-modal" id="postDetailModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closePostDetail()">✕</button>
+    <div id="postDetailContent"></div>
+  </div>
+</div>
+
+<script>
+  // ═══════════════════════════════════════
+  // DATA & STATE
+  // ═══════════════════════════════════════
+  let allPosts = [];
+  let currentFilter = null;
+  let searchQuery = '';
+
+  const ADMIN_PASSWORD = 'admin123';
+
+  // ═══════════════════════════════════════
+  // LOCAL STORAGE
+  // ═══════════════════════════════════════
+  function savePosts() {
+    localStorage.setItem('cineman_posts', JSON.stringify(allPosts));
+  }
+
+  function loadPosts() {
+    const stored = localStorage.getItem('cineman_posts');
+    allPosts = stored ? JSON.parse(stored) : [];
+  }
+
+  // ═══════════════════════════════════════
+  // INITIALIZATION
+  // ═══════════════════════════════════════
+  window.addEventListener('DOMContentLoaded', () => {
+    initFilmStrip();
+    loadPosts();
+    renderPosts();
+  });
+
+  function initFilmStrip() {
+    const topSprockets = document.getElementById('topSprockets');
+    const botSprockets = document.getElementById('botSprockets');
+    const framesTrack = document.getElementById('framesTrack');
+
+    // Create sprocket holes
+    for (let i = 0; i < 50; i++) {
+      topSprockets.innerHTML += '<div class="sprocket-hole"></div>';
+      botSprockets.innerHTML += '<div class="sprocket-hole"></div>';
+    }
+
+    // Create film frames (doubled for infinite scroll)
+    const frames = ['🎬', '🎭', '🎪', '🎨', '🎵'];
+    for (let j = 0; j < 2; j++) {
+      for (let frame of frames) {
+        const div = document.createElement('div');
+        div.className = 'film-frame';
+        div.textContent = frame;
+        framesTrack.appendChild(div);
+      }
+    }
+  }
+
+  // ═══════════════════════════════════════
+  // RENDERING
+  // ═══════════════════════════════════════
+  function renderPosts() {
+    const container = document.getElementById('postsContainer');
+    const noResults = document.getElementById('noResults');
+    const emptyState = document.getElementById('emptyState');
+    
+    container.innerHTML = '';
+    
+    let filtered = allPosts.filter(post => {
+      const matchGenre = !currentFilter || post.genre === currentFilter;
+      const matchSearch = !searchQuery || 
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.body.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.author.toLowerCase().includes(searchQuery.toLowerCase());
+      return matchGenre && matchSearch;
+    });
+
+    // Sort by newest first
+    filtered.sort((a, b) => new Date(b.date) - new Date(a.date));
+
+    if (filtered.length === 0) {
+      if (searchQuery || currentFilter) {
+        noResults.style.display = 'block';
+        emptyState.style.display = 'none';
+      } else {
+        noResults.style.display = 'none';
+        emptyState.style.display = 'block';
+      }
+      return;
+    }
+
+    noResults.style.display = 'none';
+    emptyState.style.display = 'none';
+
+    // Show featured post (most recent)
+    const featured = filtered[0];
+    container.innerHTML = createFeaturedPostHTML(featured);
+
+    // Show grid of other posts
+    if (filtered.length > 1) {
+      const gridHTML = '<div class="posts-grid">' + 
+        filtered.slice(1).map((post, idx) => createPostCardHTML(post, idx)).join('') +
+        '</div>';
+      container.innerHTML += gridHTML;
+    }
+
+    // Add click listeners
+    container.querySelectorAll('[data-post-id]').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (!e.target.closest('.react-btn') && !e.target.closest('.comment-form')) {
+          const postId = el.getAttribute('data-post-id');
+          showPostDetail(parseInt(postId));
+        }
+      });
+    });
+  }
+
+  function createFeaturedPostHTML(post) {
+    const excerpt = post.body.substring(0, 150) + (post.body.length > 150 ? '...' : '');
+    const ratingDesc = getRatingDescription(post.rating);
+    
+    return `
+      <div class="featured-post" data-post-id="${post.id}">
+        <div class="featured-img">
+          ${post.image ? `<img src="${post.image}" alt="${post.title}">` : `<div class="featured-img-placeholder">🎬</div>`}
+          <div class="featured-badge">FEATURED</div>
+        </div>
+        <div class="featured-body">
+          <div>
+            <div class="genre-tag">${post.genre}</div>
+            <h2>${escapeHtml(post.title)}</h2>
+            <p class="post-excerpt">${escapeHtml(excerpt)}</p>
+            <div class="post-meta">By ${escapeHtml(post.author)} · ${formatDate(post.date)}</div>
+          </div>
+          <div class="rating-meter">
+            <div class="rating-text-group">
+              <span class="rating-label">RATING</span>
+              <div>
+                <span class="rating-value">${post.rating}</span>
+                <span class="rating-max">/10</span>
+              </div>
+            </div>
+            <div class="rating-desc">${ratingDesc}</div>
+          </div>
+          <div class="interaction-bar">
+            <button class="react-btn ${post.userLike === 'like' ? 'active-like' : ''}" onclick="toggleLike(${post.id}, event)">
+              👍 <span id="like-${post.id}">${post.likes || 0}</span>
+            </button>
+            <button class="react-btn ${post.userLike === 'dislike' ? 'active-dislike' : ''}" onclick="toggleDislike(${post.id}, event)">
+              👎 <span id="dislike-${post.id}">${post.dislikes || 0}</span>
+            </button>
+            <div class="comment-count-btn" onclick="showPostDetail(${post.id}); event.stopPropagation();">
+              💬 <span id="comments-${post.id}">${(post.comments || []).length}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+      <hr class="divider">
+    `;
+  }
+
+  function createPostCardHTML(post, idx) {
+    const excerpt = post.body.substring(0, 80) + (post.body.length > 80 ? '...' : '');
+    
+    return `
+      <div class="post-card" data-post-id="${post.id}">
+        <div class="card-img">
+          ${post.image ? `<img src="${post.image}" alt="${post.title}">` : `<div>🎬</div>`}
+        </div>
+        <div class="card-body">
+          <h3 class="card-title">${escapeHtml(post.title)}</h3>
+          <p class="card-excerpt">${escapeHtml(excerpt)}</p>
+          <div class="card-footer">
+            <span class="card-date">${formatDate(post.date)}</span>
+            <div class="mini-rating">
+              ⭐ <span class="mini-rating-val">${post.rating}</span>
+            </div>
+          </div>
+          <div class="card-interactions">
+            <span>👍 ${post.likes || 0}</span>
+            <span>💬 ${(post.comments || []).length}</span>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ═══════════════════════════════════════
+  // USER INTERACTIONS
+  // ═══════════════════════════════════════
+  function openNewPost() {
+    document.getElementById('newPostModal').classList.add('open');
+  }
+
+  function closeNewPost() {
+    document.getElementById('newPostModal').classList.remove('open');
+    resetForm();
+  }
+
+  function resetForm() {
+    document.getElementById('postAuthor').value = '';
+    document.getElementById('postTitle').value = '';
+    document.getElementById('postBody').value = '';
+    document.getElementById('postGenre').value = 'Drama';
+    document.getElementById('ratingSlider').value = '7';
+    document.getElementById('ratingDisplay').textContent = '7';
+    document.getElementById('photoInput').value = '';
+    document.getElementById('photoPreview').style.display = 'none';
+  }
+
+  function updateRatingDisplay() {
+    const value = document.getElementById('ratingSlider').value;
+    document.getElementById('ratingDisplay').textContent = value;
+  }
+
+  function previewPhoto(event) {
+    const file = event.target.files[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const preview = document.getElementById('photoPreview');
+        preview.src = e.target.result;
+        preview.style.display = 'block';
+      };
+      reader.readAsDataURL(file);
+    }
+  }
+
+  function submitPost() {
+    const author = document.getElementById('postAuthor').value.trim();
+    const title = document.getElementById('postTitle').value.trim();
+    const genre = document.getElementById('postGenre').value;
+    const body = document.getElementById('postBody').value.trim();
+    const rating = parseInt(document.getElementById('ratingSlider').value);
+    const image = document.getElementById('photoPreview').src || '';
+
+    if (!author || !title || !body) {
+      alert('Please fill in name, title, and review');
+      return;
+    }
+
+    const post = {
+      id: Date.now(),
+      author,
+      title,
+      genre,
+      body,
+      rating,
+      image,
+      date: new Date().toISOString(),
+      likes: 0,
+      dislikes: 0,
+      userLike: null,
+      comments: []
+    };
+
+    allPosts.push(post);
+    savePosts();
+    renderPosts();
+    closeNewPost();
+  }
+
+  function handleAdminBtn() {
+    openNewPost();
+  }
+
+  function filterGenre(genre) {
+    currentFilter = currentFilter === genre ? null : genre;
+    renderPosts();
+  }
+
+  function showAll() {
+    currentFilter = null;
+    searchQuery = '';
+    document.getElementById('searchInput').value = '';
+    renderPosts();
+  }
+
+  function handleSearch() {
+    searchQuery = document.getElementById('searchInput').value;
+    renderPosts();
+  }
+
+  // ═══════════════════════════════════════
+  // REACTIONS
+  // ═══════════════════════════════════════
+  function toggleLike(postId, event) {
+    event.stopPropagation();
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    if (post.userLike === 'like') {
+      post.userLike = null;
+      post.likes--;
+    } else {
+      if (post.userLike === 'dislike') post.dislikes--;
+      post.userLike = 'like';
+      post.likes++;
+    }
+
+    savePosts();
+    renderPosts();
+  }
+
+  function toggleDislike(postId, event) {
+    event.stopPropagation();
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    if (post.userLike === 'dislike') {
+      post.userLike = null;
+      post.dislikes--;
+    } else {
+      if (post.userLike === 'like') post.likes--;
+      post.userLike = 'dislike';
+      post.dislikes++;
+    }
+
+    savePosts();
+    renderPosts();
+  }
+
+  // ═══════════════════════════════════════
+  // POST DETAIL & COMMENTS
+  // ═══════════════════════════════════════
+  function showPostDetail(postId) {
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const ratingDesc = getRatingDescription(post.rating);
+    const commentsHTML = post.comments.length === 0 
+      ? '<p class="no-comments">No comments yet. Be the first!</p>'
+      : post.comments.map(c => `
+          <div class="comment-item">
+            <div class="comment-author">${escapeHtml(c.author)}</div>
+            <div class="comment-text">${escapeHtml(c.text)}</div>
+          </div>
+        `).join('');
+
+    const detailHTML = `
+      ${post.image ? `<img src="${post.image}" class="post-detail-img" alt="${post.title}">` : ''}
+      <div class="post-detail-genre">${post.genre}</div>
+      <h2 class="post-detail-title">${escapeHtml(post.title)}</h2>
+      <div class="post-detail-meta">By ${escapeHtml(post.author)} · ${formatDate(post.date)}</div>
+      <div class="post-detail-body">${escapeHtml(post.body)}</div>
+      
+      <div class="rating-meter" style="margin-bottom: 1.5rem;">
+        <div class="rating-text-group">
+          <span class="rating-label">RATING</span>
+          <div>
+            <span class="rating-value">${post.rating}</span>
+            <span class="rating-max">/10</span>
+          </div>
+        </div>
+        <div class="rating-desc">${ratingDesc}</div>
+      </div>
+
+      <div class="interaction-bar" style="margin-bottom: 1.5rem;">
+        <button class="react-btn ${post.userLike === 'like' ? 'active-like' : ''}" onclick="toggleLike(${post.id}, event)">
+          👍 <span id="like-${post.id}">${post.likes || 0}</span>
+        </button>
+        <button class="react-btn ${post.userLike === 'dislike' ? 'active-dislike' : ''}" onclick="toggleDislike(${post.id}, event)">
+          👎 <span id="dislike-${post.id}">${post.dislikes || 0}</span>
+        </button>
+      </div>
+
+      <div class="comments-section">
+        <h3 class="comments-header">COMMENTS</h3>
+        <div class="comment-list">${commentsHTML}</div>
+        <div class="comment-form">
+          <input type="text" class="comment-name-input" id="commentName-${post.id}" placeholder="Your name">
+          <textarea class="comment-text-input" id="commentText-${post.id}" placeholder="Your comment..."></textarea>
+          <button class="btn-comment" onclick="submitComment(${post.id}, event)">Post</button>
+        </div>
+      </div>
+    `;
+
+    document.getElementById('postDetailContent').innerHTML = detailHTML;
+    document.getElementById('postDetailModal').classList.add('open');
+  }
+
+  function closePostDetail() {
+    document.getElementById('postDetailModal').classList.remove('open');
+  }
+
+  function submitComment(postId, event) {
+    event.stopPropagation();
+    const post = allPosts.find(p => p.id === postId);
+    if (!post) return;
+
+    const nameInput = document.getElementById(`commentName-${postId}`);
+    const textInput = document.getElementById(`commentText-${postId}`);
+
+    const author = nameInput.value.trim();
+    const text = textInput.value.trim();
+
+    if (!author || !text) {
+      alert('Please enter your name and comment');
+      return;
+    }
+
+    if (!post.comments) post.comments = [];
+    post.comments.push({
+      author,
+      text,
+      date: new Date().toISOString()
+    });
+
+    savePosts();
+    showPostDetail(postId);
+  }
+
+  // ═══════════════════════════════════════
+  // UTILITIES
+  // ═══════════════════════════════════════
+  function formatDate(dateStr) {
+    const date = new Date(dateStr);
+    const now = new Date();
+    const diff = now - date;
+    const minutes = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (minutes < 1) return 'Just now';
+    if (minutes < 60) return `${minutes}m ago`;
+    if (hours < 24) return `${hours}h ago`;
+    if (days < 7) return `${days}d ago`;
+    
+    return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined });
+  }
+
+  function getRatingDescription(rating) {
+    if (rating >= 9) return 'Masterpiece';
+    if (rating >= 8) return 'Excellent';
+    if (rating >= 7) return 'Great';
+    if (rating >= 6) return 'Good';
+    if (rating >= 5) return 'Average';
+    if (rating >= 3) return 'Poor';
+    return 'Terrible';
+  }
+
+  function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+  }
+
+  // Close modals on outside click
+  document.querySelectorAll('.modal-overlay').forEach(modal => {
+    modal.addEventListener('click', (e) => {
+      if (e.target === modal) {
+        modal.classList.remove('open');
+      }
+    });
+  });
+</script>
+</body>
+</html>
